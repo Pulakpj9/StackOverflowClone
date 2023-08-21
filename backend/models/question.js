@@ -2,27 +2,21 @@
 
 import mongoose from "mongoose";
 
-/* ------------------------------------------- User Schema Section ----------------------------------------- */
+/* ------------------------------------------- question Schema Section ----------------------------------------- */
 
-const UserSchema = mongoose.Schema({
+const QuestionSchema = mongoose.Schema({
     id: {
         type: String,
         required: true,
         unique: true,
     },
-    username: {
+    question: {
         type: String,
         required: true,
     },
-    email: {
+    creator_id: {
         type: String,
         required: true,
-        unique: true,
-    },
-    password: {
-        type: String,
-        required: true,
-        select: false,
     },
     createdAt: {
         type: Date,
@@ -30,4 +24,4 @@ const UserSchema = mongoose.Schema({
     }
 });
 
-export const User = mongoose.model("User", UserSchema);
+export const Questions = mongoose.model("questions", QuestionSchema);

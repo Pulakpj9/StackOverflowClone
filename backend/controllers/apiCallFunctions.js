@@ -2,6 +2,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { User } from "../models/user.js";
+import { Questions } from "../models/question.js";
 import { v4 } from 'uuid';
 
 /* ------------------------------------------- Api Functions ------------------------------------------------------------------------------------ */
@@ -35,6 +36,24 @@ export const register = async (req, res) => {                           // api f
   };
   
 export const createQuestion =async(req,res) =>{       // api to create question
-  
+  const {question,creator_id} = req.body;
 
+  const qid = "Q-"+v4();
+
+  const checkID = await User.findOne({ creator_id });
+
+  if (checkID){                                                                 // checking if creator is registered user or not
+    const createdQuestion = await Questions.create({ id:qid, question, creator_id });// if creator is valid user then adding question to database
+  }
+  else{
+    return res.status(404).json({
+      success: false,                                
+      message: "Creator not a registered user",
+    })
+  }
+
+  return res.status(200).json({
+    success: true,                                
+    message: "Question added successfully!!",
+  })
 }  
