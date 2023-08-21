@@ -7,7 +7,9 @@ import { v4 } from 'uuid';
 
 /* ------------------------------------------- Api Functions ------------------------------------------------------------------------------------ */
 
-export const register = async (req, res) => {                           // api functions that creates new user
+// -------------------- api functions that creates new user
+
+export const register = async (req, res) => {                           
 
     const {  username, email, password, cpassword } = req.body;         // taking given parameters the user must have input
 
@@ -34,8 +36,13 @@ export const register = async (req, res) => {                           // api f
     sendCookie(user, res, "Registered Successfully", 0, 201);   // if registration is successfully done creating a session cookie
 
   };
+
+
+
+
+//--------------------------- api to create question
   
-export const createQuestion =async(req,res) =>{       // api to create question
+export const createQuestion =async(req,res) =>{       
   const {question,creator_id} = req.body;
 
   const qid = "Q-"+v4();
@@ -58,7 +65,12 @@ export const createQuestion =async(req,res) =>{       // api to create question
   })
 }
 
-export const updateQuestion =async(req,res) =>{  // api function that updates question
+
+
+
+// --------------------- api function that updates question
+
+export const updateQuestion =async(req,res) =>{  
 
   const {id,user_id,newQuestion} = req.body; // taking question_id , user_id (id of user who wants to update question), the new question which one wants to update
 
@@ -83,7 +95,42 @@ export const updateQuestion =async(req,res) =>{  // api function that updates qu
     }
   }
   else{
-    return res.status(404).json({           // sending unauthorized error if userid and creator id are not same
+    return res.status(404).json({           // sending unauthorized error if userid and creator id are not same with status code 404
+      success: false,                                
+      message: "User not authorized to perform action!!",
+    })
+  }
+}
+
+
+
+
+//--------------------- api function that deletes the question
+
+export const deleteQuestion =async(req,res) =>{  
+  const {id,user_id} = req.body; // taking question_id , user_id (id of user who wants to update question)
+
+  const questionData = await Questions.findOne({id}, function(err, result) { // searching for the document in questions collection which has given question id
+    if (err) throw err;           // throwing error if any error occurs
+    console.log(result.question);
+    return result;                // returning the document if found and storing it in questionData
+  });
+
+  if (questionData && questionData.creator_id == user_id){    // checking if document is valid and cretorid of that question is same as userid 
+
+    const success = await Questions.deleteOne(questionData, function(err, obj) {
+      if (err) throw err;
+      console.log("document deleted");
+    });
+    if (success){
+      return res.status(200).json({                 // sending success response if process completed successfully
+        success: true,                                
+        message: "Question deleted successfully!!",
+      })
+    }
+  }
+  else{
+    return res.status(404).json({           // sending unauthorized error if userid and creator id are not same with status code 404
       success: false,                                
       message: "User not authorized to perform action!!",
     })
