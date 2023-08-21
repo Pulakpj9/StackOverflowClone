@@ -136,3 +136,23 @@ export const deleteQuestion =async(req,res) =>{
     })
   }
 }
+
+
+
+
+
+
+//----------------------- api function that list all the questions from questions collection
+
+export const listQuestion =async(res) =>{
+  let questionList = Questions.find({}).toArray(function(err, result) {
+    if (err) throw err;
+    console.log(result);
+    return result
+  });
+  return res.status(200).json({
+    success: true,
+    data: questionList,                               
+    message: "Question added successfully!!",
+  })
+}

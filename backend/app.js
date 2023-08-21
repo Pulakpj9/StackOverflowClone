@@ -2,7 +2,7 @@
 import express from 'express';
 import { config } from "dotenv"
 import mongoose from 'mongoose';
-import {register,createQuestion,updateQuestion,deleteQuestion} from './controllers/apiCallFunctions.js';
+import {register,createQuestion,updateQuestion,deleteQuestion,listQuestion} from './controllers/apiCallFunctions.js';
 
 config({
     path: "./data/config.env"                       // Configuring the server with port number
@@ -25,3 +25,4 @@ app.post("/new", register);
 app.post("/create-question", createQuestion);
 app.post("/update-question", updateQuestion);
 app.post("/delete-question", deleteQuestion);
+app.get("/list-all-question", listQuestion);
