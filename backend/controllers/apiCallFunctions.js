@@ -56,4 +56,36 @@ export const createQuestion =async(req,res) =>{       // api to create question
     success: true,                                
     message: "Question added successfully!!",
   })
-}  
+}
+
+export const updateQuestion =async(req,res) =>{  // api function that updates question
+
+  const {id,user_id,newQuestion} = req.body; // taking question_id , user_id (id of user who wants to update question), the new question which one wants to update
+
+  const questionData = await Questions.findOne({id}, function(err, result) { // searching for the document in questions collection which has given question id
+    if (err) throw err;           // throwing error if any error occurs
+    console.log(result.question);
+    return result;                // returning the document if found and storing it in questionData
+  });
+
+  if (questionData && questionData.creator_id == user_id){    // checking if document is valid and cretorid of that question is same as userid 
+    var newvalues = { $set: {question: newQuestion } };       // updating the question in db
+    const success = await Questions.updateOne(questionData, newvalues, function(err, res) {
+      if (err) throw err;
+      console.log("Question updated");
+      return true;
+    });
+    if (success){
+      return res.status(200).json({                 // sending success response if process completed successfully
+        success: true,                                
+        message: "Question updated successfully!!",
+      })
+    }
+  }
+  else{
+    return res.status(404).json({           // sending unauthorized error if userid and creator id are not same
+      success: false,                                
+      message: "User not authorized to perform action!!",
+    })
+  }
+}
