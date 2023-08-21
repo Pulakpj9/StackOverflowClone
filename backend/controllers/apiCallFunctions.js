@@ -32,7 +32,10 @@ export const register = async (req, res) => {
         message: "Password doesn't match",
       })
     }
-
+    return res.status(200).json({
+      success: true,                                 // if user didn't wrote correctly password both times than responding with status 404 and a msg
+      message: "Registered Sucessfully!",
+    })
     sendCookie(user, res, "Registered Successfully", 0, 201);   // if registration is successfully done creating a session cookie
 
   };
