@@ -145,7 +145,7 @@ export const deleteQuestion =async(req,res) =>{
 //----------------------- api function that list all the questions from questions collection
 
 export const listQuestion =async(res) =>{
-  let questionList = Questions.find({}).toArray(function(err, result) {
+  let questionList = Questions.find({}).toArray(function(err, result) { // querying all documents in collection
     if (err) throw err;
     console.log(result);
     return result
