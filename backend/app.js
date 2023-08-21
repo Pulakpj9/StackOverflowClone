@@ -3,6 +3,7 @@ import express from 'express';
 import { config } from "dotenv"
 import mongoose from 'mongoose';
 import {register,createQuestion,updateQuestion,deleteQuestion,listQuestion} from './controllers/apiCallFunctions.js';
+import cookieParser from "cookie-parser";
 
 config({
     path: "./data/config.env"                       // Configuring the server with port number
@@ -19,6 +20,9 @@ mongoose.connect(process.env.MONGO_URI, {           // connecting with mongo db 
 },)
     .then(() => { console.log("db connected") })
     .catch((e) => { console.log(e) });
+
+app.use(express.json());
+app.use(cookieParser());
 
 /* ----------------------------------------------API calls ----------------------------------------------------*/
 app.post("/new", register);

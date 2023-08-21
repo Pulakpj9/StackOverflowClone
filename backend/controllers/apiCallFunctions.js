@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { User } from "../models/user.js";
 import { Questions } from "../models/question.js";
 import { v4 } from 'uuid';
+import { sendCookie } from "../utils/feature.js";
 
 /* ------------------------------------------- Api Functions ------------------------------------------------------------------------------------ */
 
@@ -13,7 +14,7 @@ export const register = async (req, res) => {
 
     const {  username, email, password, cpassword } = req.body;         // taking given parameters the user must have input
 
-    const user  = await User.findOne({ email });  // checking if user email id is previously registered or not from line 13-18 if not then responding with status 404 and a msg
+    let user  = await User.findOne({ email });  // checking if user email id is previously registered or not from line 13-18 if not then responding with status 404 and a msg
      
     if (user) return res.status(404).json({
       success: false,
@@ -32,11 +33,8 @@ export const register = async (req, res) => {
         message: "Password doesn't match",
       })
     }
-    return res.status(200).json({
-      success: true,                                 // if user didn't wrote correctly password both times than responding with status 404 and a msg
-      message: "Registered Sucessfully!",
-    })
-    sendCookie(user, res, "Registered Successfully", 0, 201);   // if registration is successfully done creating a session cookie
+
+    sendCookie(user, res, "Registered Successfully", 201);   // if registration is successfully done creating a session cookie
 
   };
 
@@ -46,14 +44,13 @@ export const register = async (req, res) => {
 //--------------------------- api to create question
   
 export const createQuestion =async(req,res) =>{       
-  const {question,creator_id} = req.body;
+  const {question,id} = req.body;
 
   const qid = "Q-"+v4();
-
-  const checkID = await User.findOne({ creator_id });
+  const checkID = await User.findOne({id });
 
   if (checkID){                                                                 // checking if creator is registered user or not
-    const createdQuestion = await Questions.create({ id:qid, question, creator_id });// if creator is valid user then adding question to database
+    await Questions.create({ qid:qid, question, creator_id:id });// if creator is valid user then adding question to database
   }
   else{
     return res.status(404).json({
@@ -74,22 +71,16 @@ export const createQuestion =async(req,res) =>{
 // --------------------- api function that updates question
 
 export const updateQuestion =async(req,res) =>{  
+  const {qid,id,newQuestion} = req.body; // taking question_id , user_id (id of user who wants to update question), the new question which one wants to update
 
-  const {id,user_id,newQuestion} = req.body; // taking question_id , user_id (id of user who wants to update question), the new question which one wants to update
+  const questionData = await Questions.findOne({qid});
 
-  const questionData = await Questions.findOne({id}, function(err, result) { // searching for the document in questions collection which has given question id
-    if (err) throw err;           // throwing error if any error occurs
-    console.log(result.question);
-    return result;                // returning the document if found and storing it in questionData
-  });
+  console.log(questionData);
 
-  if (questionData && questionData.creator_id == user_id){    // checking if document is valid and cretorid of that question is same as userid 
+  if (questionData && questionData.creator_id == id){    // checking if document is valid and cretorid of that question is same as userid 
     var newvalues = { $set: {question: newQuestion } };       // updating the question in db
-    const success = await Questions.updateOne(questionData, newvalues, function(err, res) {
-      if (err) throw err;
-      console.log("Question updated");
-      return true;
-    });
+    const success = await Questions.updateOne(questionData, newvalues);
+    console.log(success);
     if (success){
       return res.status(200).json({                 // sending success response if process completed successfully
         success: true,                                
@@ -111,20 +102,14 @@ export const updateQuestion =async(req,res) =>{
 //--------------------- api function that deletes the question
 
 export const deleteQuestion =async(req,res) =>{  
-  const {id,user_id} = req.body; // taking question_id , user_id (id of user who wants to update question)
+  const {qid,id} = req.body; // taking question_id , user_id (id of user who wants to update question)
 
-  const questionData = await Questions.findOne({id}, function(err, result) { // searching for the document in questions collection which has given question id
-    if (err) throw err;           // throwing error if any error occurs
-    console.log(result.question);
-    return result;                // returning the document if found and storing it in questionData
-  });
+  const questionData = await Questions.findOne({qid});
 
-  if (questionData && questionData.creator_id == user_id){    // checking if document is valid and cretorid of that question is same as userid 
+  if (questionData && questionData.creator_id == id){    // checking if document is valid and cretorid of that question is same as userid 
 
-    const success = await Questions.deleteOne(questionData, function(err, obj) {
-      if (err) throw err;
-      console.log("document deleted");
-    });
+    const success = await Questions.deleteOne(questionData);
+    console.log(success);
     if (success){
       return res.status(200).json({                 // sending success response if process completed successfully
         success: true,                                
@@ -147,15 +132,15 @@ export const deleteQuestion =async(req,res) =>{
 
 //----------------------- api function that list all the questions from questions collection
 
-export const listQuestion =async(res) =>{
-  let questionList = Questions.find({}).toArray(function(err, result) { // querying all documents in collection
-    if (err) throw err;
-    console.log(result);
-    return result
-  });
+export const listQuestion =async(req,res) =>{
+  let questionList = await Questions.find();
+  console.log(questionList);
+  // questionList.foreach(element => {
+  //   console.log(element);
+  // });
   return res.status(200).json({
     success: true,
     data: questionList,                               
-    message: "Question added successfully!!",
+    message: "All Questions listed successfully!!",
   })
 }

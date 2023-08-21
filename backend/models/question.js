@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 /* ------------------------------------------- question Schema Section ----------------------------------------- */
 
 const QuestionSchema = mongoose.Schema({
-    id: {
+    qid: {
         type: String,
         required: true,
         unique: true,
